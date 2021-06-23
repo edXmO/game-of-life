@@ -1,16 +1,17 @@
-let canvas = document.querySelector("#canvas");
-let ctx = canvas.getContext('2d');
+const canvas = document.querySelector("#canvas");
+const ctx = canvas.getContext('2d');
 
-let WIDTH = 600;
-let HEIGHT = 600;
-let SQUARE_SZ = 10;
+// Constants
+const WIDTH = 600;
+const HEIGHT = 600;
+const SQUARE_SZ = 10;
+
 
 // Store de cada cell en el grid
 // [{x, y, visited(bool)}]
 const GRID2D = [];
 
 const drawGrid = (width, height, side) => {
-
     for (let i = side; i <= width; i += side) {
         ctx.beginPath();
         ctx.moveTo(0, i);
@@ -26,8 +27,6 @@ const drawGrid = (width, height, side) => {
     }
 }
 
-
-
 const drawCell = () => {
     let index = Math.floor(Math.random() * GRID2D.length);
     // while(GRID2D[index].visited){
@@ -41,6 +40,11 @@ const drawCell = () => {
 }
 
 const checkNeighbors = (grid, index) => {
+    // Una célula muerta con exactamente 3 células vecinas vivas "nace" 
+    // (es decir, al turno siguiente estará viva).
+    // Una célula viva con 2 o 3 células vecinas vivas sigue viva,
+    // en otro caso muere (por "soledad" o "superpoblación").
+
     // const { x, y, visited } = grid[index];
         // Arriba
 
@@ -58,7 +62,7 @@ const checkNeighbors = (grid, index) => {
         // ctx.fillRect(GRID2D[index + 60].x, GRID2D[index + 60].y, 10, 10);
 
         // Izquierda
-        
+
         // ctx.moveTo(GRID2D[index - 60].x, GRID2D[index - 60].y);
         // ctx.fillRect(GRID2D[index - 60].x, GRID2D[index - 60].y, 10, 10);
     
@@ -86,7 +90,11 @@ const checkNeighbors = (grid, index) => {
 }
 
 
-const shouldCellLive = (x, y) => {
+const shouldCellLive = (grid, index) => {
+    if(checkNeighbors(grid, index)){
+        // Muere
+    }
+    // Vive
     // Recibe coordenadas de la cell en cuestion
     // devuelve un booleano segun si la celula
     // debe continuar viviendo o no 
@@ -104,24 +112,21 @@ const init = () => {
 
 const MAX_FPS = 2; 
 let frameTime = 0;
-init();
 
-drawCell();
-// const gameLoop = (timestamp) => {
-//     if (timestamp < frameTime + (1000 / MAX_FPS)) {
-//         requestAnimationFrame(gameLoop);
-//         return;
-//     }
-//     frameTime = timestamp;
+const tick = (timestamp) => {
+    if (timestamp < frameTime + (1000 / MAX_FPS)) {
+        requestAnimationFrame(tick);
+        return;
+    }
+    frameTime = timestamp;
 
-//     init();
-//     drawCell();
+    init();
+    drawCell();
     
-//     requestAnimationFrame(gameLoop);
-// }
+    requestAnimationFrame(tick);
+}
 
-// gameLoop();
+tick();
 
-console.log(GRID2D);
 
 
