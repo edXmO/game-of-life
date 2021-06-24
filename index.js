@@ -5,13 +5,17 @@ const ctx = canvas.getContext('2d');
 const WIDTH = 600;
 const HEIGHT = 600;
 const SQUARE_SZ = 10;
+const ROWS = WIDTH / SQUARE_SZ;
+const MAX_FPS = 2; 
 
-
+//Globals
+let frameTime = 0;
+const GRID2D = [];
 // Store de cada cell en el grid
 // [{x, y, visited(bool)}]
-const GRID2D = [];
 
-const drawGrid = (width, height, side) => {
+
+const drawGrid = (width, height, side, arr) => {
     for (let i = side; i <= width; i += side) {
         ctx.beginPath();
         ctx.moveTo(0, i);
@@ -22,73 +26,44 @@ const drawGrid = (width, height, side) => {
             ctx.moveTo(j, 0);
             ctx.lineTo(j, height);
             ctx.stroke();
-            GRID2D.push({ x: i, y: j, visited: false });
+            arr.push({ x: i, y: j, alive: false });
         }
     }
 }
 
 const drawCell = () => {
     let index = Math.floor(Math.random() * GRID2D.length);
-    // while(GRID2D[index].visited){
-    //     console.log("index is visited generating again");
-    //     index = Math.floor(Math.random() & GRID2D.length);
-    // }
+    while(GRID2D[index].alive){
+        index = Math.floor(Math.random() * GRID2D.length);
+    }
     const { x, y } = GRID2D[index];
-    // GRID2D[index].visited = true;
+    GRID2D[index].alive = true;
     ctx.moveTo(x, y);
     ctx.fillRect(x, y, 10, 10);
 }
 
 const checkNeighbors = (grid, index) => {
-    // Una célula muerta con exactamente 3 células vecinas vivas "nace" 
-    // (es decir, al turno siguiente estará viva).
-    // Una célula viva con 2 o 3 células vecinas vivas sigue viva,
-    // en otro caso muere (por "soledad" o "superpoblación").
 
-    // const { x, y, visited } = grid[index];
-        // Arriba
+    const neighbors = [
+        GRID2D[index - 1].alive, 
+        GRID2D[index + 1].alive,
+        GRID2D[index + ROWS].alive,
+        GRID2D[index + ROWS + 1].alive,
+        GRID2D[index + ROWS - 1].alive,
+        GRID2D[index - ROWS].alive,
+        GRID2D[index - ROWS + 1].alive,
+        GRID2D[index - ROWS - 1].alive
+    ].filter(neighbor => neighbor).length;
 
-        // ctx.moveTo(GRID2D[index - 1].x, GRID2D[index - 1].y);
-        // ctx.fillRect(GRID2D[index - 1].x, GRID2D[index - 1].y, 10, 10);
+    if(grid[index].alive && neighbors < 2){
+        return grid[index].alive = false;
+    }
 
-        // Abajo
-
-        // ctx.moveTo(GRID2D[index + 1].x, GRID2D[index + 1].y);
-        // ctx.fillRect(GRID2D[index + 1].x, GRID2D[index + 1].y, 10, 10);
-
-        // Derecha
-
-        // ctx.moveTo(GRID2D[index + 60].x, GRID2D[index + 60].y);
-        // ctx.fillRect(GRID2D[index + 60].x, GRID2D[index + 60].y, 10, 10);
-
-        // Izquierda
-
-        // ctx.moveTo(GRID2D[index - 60].x, GRID2D[index - 60].y);
-        // ctx.fillRect(GRID2D[index - 60].x, GRID2D[index - 60].y, 10, 10);
+    if(!grid[index].alive && neighbors === 3){
+        return grid[index].alive = true;
+    }
     
-    // Recibe coordenadas de la celula
-    // Hay que chequear las 8 celdas a su alrededor
-    // 
-    // |  |  |  |
-    // ----------
-    // |  | x |  |
-    // ----------
-    // |  |  |  |
-    //
-    // Hay que tener en cuenta los bordes 
-    // de alguna manera
-    //
-    // Estos son :
-    // [i - 10][j]
-    // [i + 10][j]
-    // [i][j + 10]
-    // [i][j - 10]
-    // [i - 10][j - 10]
-    // [i + 10][j + 10]
-    // [i + 10][j - 10]
-    // [i - 10][j + 10]
 }
-
 
 const shouldCellLive = (grid, index) => {
     if(checkNeighbors(grid, index)){
@@ -107,11 +82,8 @@ const shouldCellLive = (grid, index) => {
 }
 
 const init = () => {
-    drawGrid(WIDTH, HEIGHT, SQUARE_SZ);
+    drawGrid(WIDTH, HEIGHT, SQUARE_SZ, GRID2D);
 }
-
-const MAX_FPS = 2; 
-let frameTime = 0;
 
 const tick = (timestamp) => {
     if (timestamp < frameTime + (1000 / MAX_FPS)) {
@@ -121,12 +93,9 @@ const tick = (timestamp) => {
     frameTime = timestamp;
 
     init();
-    drawCell();
+    // drawCell();
     
     requestAnimationFrame(tick);
 }
 
 tick();
-
-
-
