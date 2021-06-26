@@ -4,6 +4,7 @@ const startBtn = document.querySelector('.controls__btn--start');
 const resetBtn = document.querySelector('.controls__btn--reset');
 const stopBtn = document.querySelector('.controls__btn--stop');
 const generationNumber = document.querySelector('.controls__gridInfo--generation');
+const aliveCellsAmount = document.querySelector('.controls__gridInfo--alive');
 
 // Constants
 const WIDTH = 600;
@@ -31,7 +32,11 @@ const changeCellStatus = (e) => {
     ctx.moveTo(coordX * COLS, coordY * ROWS);
     ctx.fillStyle = "black"
     ctx.fillRect(coordX * COLS, coordY * COLS, 10, 10);
-    grid[coordX][coordY] = 1;
+    if(!grid[coordX][coordY]){
+        grid[coordX][coordY] = 1;
+        aliveCells++;
+        aliveCellsAmount.innerHTML = `Alive cells: ${aliveCells}`;
+    }
 }
 
 
@@ -43,9 +48,10 @@ const create2DGrid = () => {
     return newGrid;
 }
 
+
 const draw2DGrid = () => {
     for(let i = 0; i < RES_RATIO; i++){
-        for(let j = 0; j < RES_RATIO; j++){    
+        for(let j = 0; j < RES_RATIO; j++){
             ctx.beginPath();
             ctx.moveTo(i *  COLS, j * ROWS);
             ctx.fillStyle = grid[i][j] ? "black" : "white";
@@ -71,7 +77,7 @@ const checkNeighbors = (row, col) => {
 
 const shouldCellLive = (row, col) => {
     if(row == 0 || row == RES_RATIO - 1 || col == 0 || col == RES_RATIO - 1){
-        return grid[row][col];
+        return 0;
     }
     if(grid[row][col] == 0  && checkNeighbors(row, col) == 3) return 1;
     if(grid[row][col] == 1  && (checkNeighbors(row, col) == 2 || checkNeighbors(row, col) == 3)) return 1;
@@ -94,8 +100,7 @@ const init = () => {
     draw2DGrid();
 }
 
-// Init
-
+// Game Init
 init();
 
 
@@ -106,14 +111,15 @@ const tick = (timestamp) => {
     }
     frameTime = timestamp;
 
-    grid = newGen();
+    newGen();
     generationNumber.innerHTML = `Generation: ${generation}`;
     generation++;
 
     draw2DGrid();
+    // aliveCellsAmount.innerHTML = `Alive cells: ${cells}`;
 
     animationFrameID = requestAnimationFrame(tick);
-    console.log(`Generations: ${generation}, Alive Cells: ${aliveCells}`)
+    // console.log(`Generations: ${generation}, Alive Cells: ${aliveCells}`)
 };
 
 // Evt Listeners
@@ -133,7 +139,11 @@ stopBtn.addEventListener('click', () => {
 resetBtn.addEventListener('click', () => {
     window.cancelAnimationFrame(animationFrameID);
     init();
-})
+    generation = 0;
+    aliveCells = 0;
+    generationNumber.innerHTML = `Generation: ${generation}`;
+    // aliveCellsAmount.innerHTML = `Alive cells: ${aliveCells}`;
+});
 
 
 

@@ -1,3 +1,5 @@
+/*  GENERAL RESETS  */
+
 *,
 *::before,
 *::after {
@@ -18,11 +20,15 @@ body {
     background-color: royalblue;
 }
 
+/*  CANVAS  */
+
 #canvas {
     margin: 2rem 6rem 2rem 6rem;
-    border:  0.1rem solid black;
+    border:  0.1rem solid royalblue;
     background-color: white;
 }
+
+/*  CONTAINERS  */
 
 .controls-container {
     display: flex;
@@ -32,13 +38,24 @@ body {
     align-items: center;
 }
 
-.heading {
+/*  HEADINGS  */
+
+.controls-container__heading {
     margin: 1rem;
     padding: 2.2rem;
     border-radius: 1.5rem;
     background-color: white;
     align-items: center;
 }
+
+.heading__link, .heading__link:active, .heading__link:focus {
+    font-weight: bold;
+    font-style: italic;
+    text-decoration: none;
+    color: black;
+}
+
+/*  CONTROLS  */
 
 .controls {
     flex: 1;
@@ -55,3 +72,30 @@ body {
     10px 10px 0px 0px #5FB8FF,
     5px 5px 15px 5px rgba(0,0,0,0);
 }
+
+.controls__buttons {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 1.2rem 0 1.2rem 0;
+}
+
+.controls__buttons > button, .controls__buttons > button:focus {
+    cursor: pointer;
+    padding: 1.5rem 2rem 1.5rem 2rem;
+    border: none;
+    border-radius: 0.7rem;
+}
+
+/* GRID INFO */
+
+.controls__gridInfo {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 1.2rem 0 2rem 0;
+}
+
+.controls__gridInfo > h3 {
+    font-size: 1.8rem;
+}
+
+
