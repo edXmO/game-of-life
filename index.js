@@ -1,5 +1,9 @@
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext('2d');
+const startBtn = document.querySelector('.controls__btn--start');
+const resetBtn = document.querySelector('.controls__btn--reset');
+const stopBtn = document.querySelector('.controls__btn--stop');
+const generationNumber = document.querySelector('.controls__gridInfo--generation');
 
 // Constants
 const WIDTH = 600;
@@ -10,48 +14,42 @@ const ROWS = 10;
 
 const RES_RATIO = WIDTH / ROWS;
 
-// GLOBAL
+// GLOBALS
+let aliveCells = 0;
+let generation = 0;
+let animationFrameID;
 let frameTime;
-let MAX_FPS = 1;
+let maxFps = 0.7;
 let grid = [];
 
-const onCellClick = (e) => {
+
+const changeCellStatus = (e) => {
     const { offsetX, offsetY } = e;
     const coordX = Math.floor(offsetX / ROWS);
     const coordY = Math.floor(offsetY / COLS);
     ctx.beginPath();
     ctx.moveTo(coordX * COLS, coordY * ROWS);
+    ctx.fillStyle = "black"
     ctx.fillRect(coordX * COLS, coordY * COLS, 10, 10);
-    grid[coordX, coordY] = 1;
+    grid[coordX][coordY] = 1;
 }
-
-canvas.addEventListener('click', (e) => {
-    onCellClick(e);
-})
 
 
 const create2DGrid = () => {
     let newGrid = new Array(RES_RATIO);
     for(let i = 0; i < newGrid.length; i++){
-        newGrid[i] = new Array(RES_RATIO);
+        newGrid[i] = new Array(RES_RATIO).fill(0);
     }
     return newGrid;
 }
 
 const draw2DGrid = () => {
     for(let i = 0; i < RES_RATIO; i++){
-        for(let j = 0; j < RES_RATIO; j++){      
+        for(let j = 0; j < RES_RATIO; j++){    
             ctx.beginPath();
             ctx.moveTo(i *  COLS, j * ROWS);
-            ctx.rect(i *  COLS, j * ROWS, 10, 10);
-            ctx.stroke();
-            if(grid[i][j]){
-                ctx.fillStyle= "black";
-                grid[i][j] == 1 ? ctx.fill() : null;
-            } else {
-                ctx.fillStyle = "white";
-                ctx.fill();
-            }
+            ctx.fillStyle = grid[i][j] ? "black" : "white";
+            ctx.fillRect(i *  COLS, j * ROWS, 10, 10)
         }
     }
 }
@@ -75,28 +73,16 @@ const shouldCellLive = (row, col) => {
     if(row == 0 || row == RES_RATIO - 1 || col == 0 || col == RES_RATIO - 1){
         return grid[row][col];
     }
-    if(grid[row][col] == 1  && checkNeighbors(row, col) == 3) return 1;
-    if(grid[row][col] == 0  && (checkNeighbors(row, col) < 2 || checkNeighbors(row, col) > 3)) return 1;
+    if(grid[row][col] == 0  && checkNeighbors(row, col) == 3) return 1;
+    if(grid[row][col] == 1  && (checkNeighbors(row, col) == 2 || checkNeighbors(row, col) == 3)) return 1;
     return 0;
 }
-
 
 const newGen = () => {
     let newGen = grid;
     for(let i = 0; i < RES_RATIO; i++){
         for(let j = 0; j < RES_RATIO; j++){
-            grid[i][j] = shouldCellLive(i, j);
-            ctx.beginPath();
-            ctx.moveTo(i *  COLS, j * ROWS);
-            ctx.rect(i *  COLS, j * ROWS, 10, 10);
-            ctx.stroke();
-            if(grid[i][j]){
-                ctx.fillStyle= "black";
-                grid[i][j] == 1 ? ctx.fill() : null;
-            } else {
-                ctx.fillStyle = "white";
-                ctx.fill();
-            }
+            newGen[i][j] = shouldCellLive(i, j);
         }
     }
 
@@ -105,27 +91,53 @@ const newGen = () => {
 
 const init = () => {
     grid = create2DGrid();
-    for(let i = 0; i < RES_RATIO; i++){
-        for(let j = 0; j < RES_RATIO; j++){
-            grid[i][j] = Math.round(Math.random());
-        }
-    }
     draw2DGrid();
-    grid = newGen();
 }
+
+// Init
+
+init();
 
 
 const tick = (timestamp) => {
-    if (timestamp < frameTime + (1000 / MAX_FPS)) {
-        requestAnimationFrame(tick);
+    if (timestamp < frameTime + (1000 / maxFps)) {
+        animationFrameID = requestAnimationFrame(tick);
         return;
     }
     frameTime = timestamp;
-    init();
 
+    grid = newGen();
+    generationNumber.innerHTML = `Generation: ${generation}`;
+    generation++;
 
-    requestAnimationFrame(tick);
+    draw2DGrid();
+
+    animationFrameID = requestAnimationFrame(tick);
+    console.log(`Generations: ${generation}, Alive Cells: ${aliveCells}`)
 };
 
+// Evt Listeners
 
-tick();
+canvas.addEventListener('click', (e) => {
+    changeCellStatus(e);
+});
+
+startBtn.addEventListener('click', () => {
+    tick();
+})
+
+stopBtn.addEventListener('click', () => {
+    window.cancelAnimationFrame(animationFrameID);
+})
+
+resetBtn.addEventListener('click', () => {
+    window.cancelAnimationFrame(animationFrameID);
+    init();
+})
+
+
+
+
+
+
+

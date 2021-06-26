@@ -47,12 +47,11 @@ body {
     margin-bottom: 2rem;
     background: white;
     border-radius: 1rem;
-    -webkit-box-shadow: 5px 5px 0px 0px #289FED,
+    -webkit-box-shadow: 
+    5px 5px 0px 0px #289FED,
     10px 10px 0px 0px #5FB8FF,
-    15px 15px 0px 0px #A1D8FF,   
     5px 5px 15px 5px rgba(0,0,0,0); 
     box-shadow: 5px 5px 0px 0px #289FED,
     10px 10px 0px 0px #5FB8FF,
-    15px 15px 0px 0px #A1D8FF,
     5px 5px 15px 5px rgba(0,0,0,0);
 }
