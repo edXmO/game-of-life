@@ -30,13 +30,6 @@ const draw2DGrid = () => {
             ctx.moveTo(i *  COLS, j * ROWS);
             ctx.rect(i *  COLS, j * ROWS, 10, 10);
             ctx.stroke();
-            if(grid[i][j]){
-                ctx.fillStyle= "black";
-                grid[i][j] == 1 ? ctx.fill() : null;
-            } else {
-                ctx.fillStyle = "white";
-                ctx.fill();
-            }
         }
     }
 }
@@ -60,7 +53,7 @@ const shouldCellLive = (row, col) => {
     if(row == 0 || row == RES_RATIO - 1 || col == 0 || col == RES_RATIO - 1){
         return grid[row][col];
     }
-    if(grid[row][col] == 1  && checkNeighbors(row, col) === 3) return 1;
+    if(grid[row][col] == 1  && checkNeighbors(row, col) == 3) return 1;
     if(grid[row][col] == 0  && (checkNeighbors(row, col) < 2 || checkNeighbors(row, col) > 3)) return 1;
     return 0;
 }
@@ -71,6 +64,17 @@ const newGen = () => {
     for(let i = 0; i < RES_RATIO; i++){
         for(let j = 0; j < RES_RATIO; j++){
             grid[i][j] = shouldCellLive(i, j);
+            ctx.beginPath();
+            ctx.moveTo(i *  COLS, j * ROWS);
+            ctx.rect(i *  COLS, j * ROWS, 10, 10);
+            ctx.stroke();
+            if(grid[i][j]){
+                ctx.fillStyle= "black";
+                grid[i][j] == 1 ? ctx.fill() : null;
+            } else {
+                ctx.fillStyle = "white";
+                ctx.fill();
+            }
         }
     }
 
@@ -85,8 +89,7 @@ const init = () => {
         }
     }
     draw2DGrid();
-    let nextGen = newGen();
-    grid = nextGen;
+    grid = newGen();
 }
 
 
