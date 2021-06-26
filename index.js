@@ -4,99 +4,91 @@ const ctx = canvas.getContext('2d');
 // Constants
 const WIDTH = 600;
 const HEIGHT = 600;
-const SQUARE_SZ = 10;
-const ROWS = WIDTH / SQUARE_SZ;
-const MAX_FPS = 2;
-const GRID_LENGTH = WIDTH * HEIGHT;
 
-//Globals
-let frameTime = 0;
-let GRID2D = [];
-// Store de cada cell en el grid
-// [{x, y, alive(bool)}]
+const COLS = 10;
+const ROWS = 10;
 
+const RES_RATIO = WIDTH / ROWS;
 
-const drawGrid = (width, height, side, arr) => {
-    for (let i = side; i <= width; i += side) {
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(width, i);
-        ctx.stroke();
-        for (let j = side; j <= height; j += side) {
+// GLOBAL
+let frameTime;
+let MAX_FPS = 1;
+let grid = [];
+
+const create2DGrid = () => {
+    let newGrid = new Array(RES_RATIO);
+    for(let i = 0; i < newGrid.length; i++){
+        newGrid[i] = new Array(RES_RATIO);
+    }
+    return newGrid;
+}
+
+const draw2DGrid = () => {
+    for(let i = 0; i < RES_RATIO; i++){
+        for(let j = 0; j < RES_RATIO; j++){
             ctx.beginPath();
-            ctx.moveTo(j, 0);
-            ctx.lineTo(j, height);
+            ctx.moveTo(i *  COLS, j * ROWS);
+            ctx.rect(i *  COLS, j * ROWS, 10, 10);
             ctx.stroke();
-            arr.push({ x: i, y: j, alive: false });
+            if(grid[i][j]){
+                ctx.fillStyle= "black";
+                grid[i][j] == 1 ? ctx.fill() : null;
+            } else {
+                ctx.fillStyle = "white";
+                ctx.fill();
+            }
         }
     }
 }
 
-// const checkCells = (arr) => {
-//     for (let i = side; i <= width; i += side) {
-//         ctx.beginPath();
-//         ctx.moveTo(0, i);
-//         ctx.lineTo(width, i);
-//         ctx.stroke();
-//         for (let j = side; j <= height; j += side) {
-//             ctx.beginPath();
-//             ctx.moveTo(j, 0);
-//             ctx.lineTo(j, height);
-//             ctx.stroke();
-//         }
-//     }
-// }
+const checkNeighbors = (row, col) => {
+    const neighbors = [
+        grid[row + 1][col],
+        grid[row - 1][col],
+        grid[row][col + 1],
+        grid[row][col - 1],
+        grid[row - 1][col - 1],
+        grid[row + 1][col + 1],
+        grid[row - 1][col + 1],
+        grid[row + 1][col -1],
+    ].filter(alive => alive).length;
 
-const nextGen = (arr) => {
-    let newGen = arr;
-    for(let i = 0; i < GRID_LENGTH - 1; i++){
-        let cellStatus = shouldCellLive(arr, i);
-        newGen[i].alive = cellStatus;
+    return neighbors;
+}
+
+const shouldCellLive = (row, col) => {
+    if(row == 0 || row == RES_RATIO - 1 || col == 0 || col == RES_RATIO - 1){
+        return grid[row][col];
     }
+    if(grid[row][col] == 1  && checkNeighbors(row, col) === 3) return 1;
+    if(grid[row][col] == 0  && (checkNeighbors(row, col) < 2 || checkNeighbors(row, col) > 3)) return 1;
+    return 0;
+}
+
+
+const newGen = () => {
+    let newGen = grid;
+    for(let i = 0; i < RES_RATIO; i++){
+        for(let j = 0; j < RES_RATIO; j++){
+            grid[i][j] = shouldCellLive(i, j);
+        }
+    }
+
     return [...newGen];
 }
 
-const drawCell = () => {
-    let index = Math.floor(Math.random() * GRID2D.length);
-    while(GRID2D[index].alive){
-        index = Math.floor(Math.random() * GRID2D.length);
-    }
-    const { x, y } = GRID2D[index];
-    GRID2D[index].alive = true;
-    ctx.moveTo(x, y);
-    ctx.fillRect(x, y, 10, 10);
-}
-
-const shouldCellLive = (grid, index) => {
-
-    const neighbors = [
-        GRID2D[index - 1].alive, 
-        GRID2D[index + 1].alive,
-        GRID2D[index + ROWS].alive,
-        GRID2D[index + ROWS + 1].alive,
-        GRID2D[index + ROWS - 1].alive,
-        GRID2D[index - ROWS].alive,
-        GRID2D[index - ROWS + 1].alive,
-        GRID2D[index - ROWS - 1].alive
-    ].filter(neighbor => neighbor).length;
-
-    if(grid[index].alive && neighbors < 2){
-        return false;
-    }
-
-    console.log("also got to here");
-
-    if(!grid[index].alive && neighbors === 3){
-        return true;
-    }
-    
-}
-
 const init = () => {
-    drawGrid(WIDTH, HEIGHT, SQUARE_SZ, GRID2D);
+    grid = create2DGrid();
+    for(let i = 0; i < RES_RATIO; i++){
+        for(let j = 0; j < RES_RATIO; j++){
+            grid[i][j] = Math.round(Math.random());
+        }
+    }
+    draw2DGrid();
+    let nextGen = newGen();
+    grid = nextGen;
 }
 
-init();
 
 const tick = (timestamp) => {
     if (timestamp < frameTime + (1000 / MAX_FPS)) {
@@ -104,10 +96,11 @@ const tick = (timestamp) => {
         return;
     }
     frameTime = timestamp;
+    init();
 
-    GRID2D = nextGen(GRID2D);
-    
+
     requestAnimationFrame(tick);
-}
+};
+
 
 tick();
