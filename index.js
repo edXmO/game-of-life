@@ -15,6 +15,21 @@ let frameTime;
 let MAX_FPS = 1;
 let grid = [];
 
+const onCellClick = (e) => {
+    const { offsetX, offsetY } = e;
+    const coordX = Math.floor(offsetX / ROWS);
+    const coordY = Math.floor(offsetY / COLS);
+    ctx.beginPath();
+    ctx.moveTo(coordX * COLS, coordY * ROWS);
+    ctx.fillRect(coordX * COLS, coordY * COLS, 10, 10);
+    grid[coordX, coordY] = 1;
+}
+
+canvas.addEventListener('click', (e) => {
+    onCellClick(e);
+})
+
+
 const create2DGrid = () => {
     let newGrid = new Array(RES_RATIO);
     for(let i = 0; i < newGrid.length; i++){
@@ -25,11 +40,18 @@ const create2DGrid = () => {
 
 const draw2DGrid = () => {
     for(let i = 0; i < RES_RATIO; i++){
-        for(let j = 0; j < RES_RATIO; j++){
+        for(let j = 0; j < RES_RATIO; j++){      
             ctx.beginPath();
             ctx.moveTo(i *  COLS, j * ROWS);
             ctx.rect(i *  COLS, j * ROWS, 10, 10);
             ctx.stroke();
+            if(grid[i][j]){
+                ctx.fillStyle= "black";
+                grid[i][j] == 1 ? ctx.fill() : null;
+            } else {
+                ctx.fillStyle = "white";
+                ctx.fill();
+            }
         }
     }
 }

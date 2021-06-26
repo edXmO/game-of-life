@@ -1,0 +1,26 @@
+{
+  "name": "game-of-life",
+  "version": "1.0.0",
+  "description": "john conway's game of life",
+  "main": "index.js",
+  "scripts": {
+    
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edXmO/game-of-life.git"
+  },
+  "keywords": [
+    "javascript",
+    "canvas",
+    "game-of-life",
+    "es6",
+    "javascript-games"
+  ],
+  "author": "Eduardo Romero Madrona",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edXmO/game-of-life/issues"
+  },
+  "homepage": "https://github.com/edXmO/game-of-life#readme"
+}
